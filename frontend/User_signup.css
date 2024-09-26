@@ -1,0 +1,32 @@
+body {
+    background-color: yellow;
+}
+
+h1 {
+    position: relative;
+    text-align: center;
+    text-decoration: underline;
+}
+
+label {
+    margin-left: 40rem;
+}
+
+#firstName {
+    color: red;
+    position: relative;
+   
+    margin-top: 100px;
+}
+
+.inputField {
+    margin-left: 20px;
+    margin-top: 5px;
+}
+
+button {
+    position: relative;
+    margin-left: 56rem;
+    bottom: 6.2rem;
+    background-color: firebrick;
+}

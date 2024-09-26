@@ -1,0 +1,18 @@
+body {
+    background-color: black;
+}
+
+h1 {
+    background-color: cyan;
+    color: black;
+    height: 50px;
+    position: relative;
+    margin-top: 5rem;
+}
+
+button{
+    position: relative;
+    float: right;
+    bottom: 8rem;
+    color: firebrick;
+}

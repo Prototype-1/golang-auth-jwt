@@ -1,0 +1,31 @@
+body {
+    background-color: yellow;
+}
+
+#email {
+    color: red;
+    position: relative;
+   
+    margin-top: 100px;
+}
+#password {
+    color: red;
+    position: relative;
+    margin-top: 2px;
+}
+
+h1 {
+    position: relative;
+    text-align: center;
+    text-decoration: underline;
+}
+
+label {
+    margin-left: 40rem;
+}
+button {
+    position: relative;
+    margin-left: 53.6rem;
+    bottom: 2.8rem;
+    background-color: firebrick;
+}

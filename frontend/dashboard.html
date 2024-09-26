@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+    <link rel="stylesheet" href="/frontend/Dashboard.css">
+    <title>Admin Dashboard</title>
+</head>
+<body>
+
+    <button id="LogOut">Logout</button>
+
+    <h1>Admin Dashboard</h1>
+    <h2>Create User</h2>
+    <form id="createUserForm">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="first_name" class="inputField" required><br>
+
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="last_name" class="inputField" required><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" class="inputField" required><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" class="inputField" required><br>
+
+        <label for="phone">Phone:</label>
+        <input type="text" id="phone" name="phone" class="inputField" required><br>
+
+        <label for="userType" class="inputField">User Type:</label>
+        <select id="userType" name="user_type">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select><br>
+
+        <button type="submit">Create User</button>
+    </form>
+
+    <h2>Update User</h2>
+    <form id="updateUserForm">
+        <label for="updateUserId">User ID:</label>
+        <input type="text" id="updateUserId" name="userId" required><br>
+
+        <label for="updateFirstName">First Name:</label>
+        <input type="text" id="updateFirstName" name="firstName"><br>
+
+        <label for="updateLastName">Last Name:</label>
+        <input type="text" id="updateLastName" name="lastName"><br>
+
+        <label for="updateEmail">Email:</label>
+        <input type="email" id="updateEmail" name="email"><br>
+
+        <label for="updateUserType">User Type:</label>
+        <select id="updateUserType" name="userType">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select><br>
+
+        <button type="submit">Update User</button>
+    </form>
+
+    <h2>Delete User</h2>
+    <form id="deleteUserForm">
+        <label for="deleteUserId">User ID:</label>
+        <input type="text" id="deleteUserId" name="userId" required><br>
+        <button type="submit">Delete User</button>
+    </form>
+
+    <button id="getUsersButton">Get Users</button>
+    <div id="result"></div>
+
+    <h2>All Users</h2>
+    <table id="userTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>User Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- User rows will be inserted here by JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+           // Function to check if the user is authenticated
+           function checkAuthentication() {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = '/frontend/admin_login.html';
+            }
+            window.history.replaceState(null, null, '');
+            window.history.pushState(null, null, '');
+        }
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', checkAuthentication);
+
+     // Check authentication on page load
+     document.addEventListener('DOMContentLoaded', () => {
+    // Check authentication status
+    const token = localStorage.getItem('adminToken');
+    if (!token) {
+        window.location.href = '/frontend/admin_login.html';
+    }
+
+    // Prevent back navigation to login page after being authenticated
+    window.history.pushState(null, null, window.location.href);
+    window.addEventListener('popstate', () => {
+        window.history.pushState(null, null, window.location.href);
+    });
+});
+
+   
+     document.getElementById('LogOut').addEventListener('click', () => {
+            // Remove the token from local storage
+            localStorage.removeItem('adminToken');
+            // Redirect to login page
+            window.location.href = '/frontend/admin_login.html';
+            // Clear browser history to prevent back navigation
+            window.history.replaceState(null, null, '/frontend/admin_login.html');
+            window.history.pushState(null, null, '/frontend/admin_login.html');
+        });
+        
+        async function fetchUsers() {
+    try {
+        const response = await fetch('http://localhost:8000/admin/get_users', {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch users');
+        }
+
+        const users = await response.json();
+        console.log(users); // Debugging line to check the response data structure
+        const userTableBody = document.querySelector('#userTable tbody');
+        userTableBody.innerHTML = ''; // Clear existing rows
+
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.id}</td>
+                <td>${user.first_name}</td>
+                <td>${user.last_name}</td>
+                <td>${user.email}</td>
+                <td>${user.phone}</td>
+                <td>${user.user_type}</td>
+            `;
+            userTableBody.appendChild(row);
+        });
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+document.getElementById('getUsersButton').addEventListener('click', fetchUsers);
+
+async function deleteUser(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const userId = formData.get('userId');
+    console.log('User ID to delete:', userId);  // Debugging line
+
+    try {
+        const response = await fetch(`http://localhost:8000/admin/delete_user/${userId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('adminToken'),
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('Response status:', response.status);  // Debugging line
+        const responseText = await response.text();
+        console.log('Raw response text:', responseText);  // Debugging line
+
+        if (!response.ok) {
+            const errorData = JSON.parse(responseText);
+            console.error('Error data:', errorData);  // Debugging line
+            throw new Error(errorData.error || 'Failed to delete user');
+        }
+
+        const result = JSON.parse(responseText);
+        console.log('Delete result:', result);  // Debugging line
+        alert(result.message);
+        fetchUsers(); // Refresh the list of users
+    } catch (error) {
+        console.error('Error:', error);  // Debugging line
+        alert('Error: ' + error.message);
+    }
+}
+
+document.getElementById('deleteUserForm').addEventListener('submit', deleteUser);
+
+    </script>
+
+    <script src="/frontend/scripts.js"></script>
+</body>
+</html>
+
+
+
+

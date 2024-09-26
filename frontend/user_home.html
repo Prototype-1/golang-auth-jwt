@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+    <link rel="stylesheet" href="/frontend/User_home.css">
+    <title>User Home</title>
+</head>
+<body>
+    <h1>Welcome <span id="username"></span></h1>
+    <button id="logoutButton">Logout</button>
+
+    <script>
+            // Function to check if the user is authenticated
+                function checkAuthentication() {
+            const token = localStorage.getItem('userToken');
+            if (!token) {
+                window.location.href = '/frontend/user_login.html';
+            }
+            window.history.replaceState(null, null, '');
+            window.history.pushState(null, null, '');
+        }
+
+         // Check authentication on page load
+         document.addEventListener('DOMContentLoaded', checkAuthentication);
+
+              // Check authentication on page load
+     document.addEventListener('DOMContentLoaded', () => {
+    // Check authentication status
+    const token = localStorage.getItem('userToken');
+    if (!token) {
+        window.location.href = '/frontend/user_login.html';
+    }
+
+    // Prevent back navigation to login page after being authenticated
+    window.history.pushState(null, null, window.location.href);
+    window.addEventListener('popstate', () => {
+        window.history.pushState(null, null, window.location.href);
+    });
+});
+
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            // Remove the token from local storage
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('username');
+            // Redirect to login page
+          window.location.href = '/frontend/user_login.html';
+        //     // Clear browser history to prevent back navigation
+            window.history.replaceState(null, null, '/frontend/user_login.html');
+           window.history.pushState(null, null, '/frontend/user_login.html');
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuthentication();
+            
+            const username = localStorage.getItem('username');
+            console.log('Retrieved email:', username); // Debug log
+            if (username) {
+                document.getElementById('username').textContent = username;
+            }else {
+                document.getElementById('username').textContent = 'undefined';
+            }
+        });
+
+    </script>
+</body>
+</html>
+
+
+
+
